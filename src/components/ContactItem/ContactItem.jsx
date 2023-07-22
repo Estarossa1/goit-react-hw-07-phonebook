@@ -1,86 +1,35 @@
 import React, { useState } from 'react';
-import { Form, Label, Input, Button } from './ContactForm.styled';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from '../../redux/operations';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { getContacts, getError } from 'redux/selectors';
+import { RiDeleteBin2Line } from 'react-icons/ri';
+import { MdPhone } from 'react-icons/md';
+import DeleteConfirmation from 'components/ContactItem/DeleteConfirmation/DeleteConfirmation';
+import { ContactItemWrapper, ContactName, ContactPhone, DeleteButton } from './ContactItem.styled';
 
-const notify = {
-  error: message => toast.error(message),
-  success: message => toast.success(message),
-};
+const ContactItem = ({ contact }) => {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-const ContactForm = () => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const contacts = useSelector(getContacts);
-  const error = useSelector(getError);
-  const handleInputChange = evt => {
-    const { name, value } = evt.currentTarget;
-    name === 'name' ? setName(value) : setNumber(value);
+  const handleDeleteClick = () => {
+    setIsConfirmingDelete(true);
   };
 
-  const dispatch = useDispatch();
-  const handleSubmit = event => {
-    event.preventDefault();
-    if (name.trim() !== '' && phone.trim() !== '') {
-      const isExistingContact = contacts.some(
-        contact => contact.name.toLowerCase() === name.toLowerCase()
-      );
-
-      if (isExistingContact) {
-        toast.error(`${name} is already in contacts`);
-        return;
-      }
-
-      if(error) {
-        notify.error('problem with server');
-        return;
-      }
-
-      dispatch(addContact({ name, phone }));
-      notify.success(`${name} adding to contacts`);
-      reset();
-    }
-  };
-
-  const reset = () => {
-    setName('');
-    setNumber('');
+  const handleCancelDelete = () => {
+    setIsConfirmingDelete(false);
   };
 
   return (
-    <section>
-      <ToastContainer />
-      
-      {error && <p>Failed to load contacts. Please try again later.</p>}
-      <Form onSubmit={handleSubmit}>
-        <Label htmlFor="name">Name:</Label>
-        <Input
-          type="text"
-          name="name"
-          pattern="^[a-zA-Zа-яА-Я]+(([' \-][a-zA-Zа-яА-Я])?[a-zA-Zа-яА-Я]*)*$"
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-          required
-          value={name}
-          onChange={handleInputChange}
-        />
-        <Label htmlFor="number">Number:</Label>
-        <Input
-          type="tel"
-          name="number"
-          pattern="\+?\d{1,4}?[\-.\s]?\(?\d{1,3}?\)?[\-.\s]?\d{1,4}[\-.\s]?\d{1,4}[\-.\s]?\d{1,9}"
-          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-          required
-          value={phone}
-          onChange={handleInputChange}
-        />
-        <br />
-        <Button type="submit">Add Contact</Button>
-      </Form>
-    </section>
+    <ContactItemWrapper>
+      <ContactName>{contact.name}</ContactName>
+      <ContactPhone>
+        <MdPhone /> {contact.phone}
+      </ContactPhone>
+      <DeleteButton onClick={handleDeleteClick}>
+        <RiDeleteBin2Line />
+      </DeleteButton>
+
+      {isConfirmingDelete && (
+        <DeleteConfirmation contact={contact} onCancel={handleCancelDelete} />
+      )}
+    </ContactItemWrapper>
   );
 };
 
-export default ContactForm;
+export default ContactItem;
