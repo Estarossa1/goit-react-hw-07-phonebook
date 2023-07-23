@@ -6,8 +6,8 @@ import { FilterContainer, FilterInput } from './Filter.styled';
 const Filter = () => {
   const dispatch = useDispatch();
 
-  const handleFilterChange = (event) => {
-    const filterValue = event.target.value;
+  const handleFilterChange = (evt) => {
+    const filterValue = evt.target.value;
     dispatch(setFilter(filterValue));
   };
 
